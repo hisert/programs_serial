@@ -52,7 +52,7 @@ def main():
             # Veri gönderme
             current_time = time.time()
             if current_time - last_send_time >= 1:
-                serial_port.send_string("<Q00000001:0000>")
+                serial_port.send_string("<Q00000000:0000>")
                 last_send_time = current_time
             
             # Veri alma
