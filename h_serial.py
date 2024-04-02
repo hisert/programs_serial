@@ -49,12 +49,17 @@ class MyServer:
 def signal_handler(sig, frame):
     global server
     server.stop()
+    server.server_thread.join()  # Sunucu threadinin tamamlanmasını bekler
     sys.exit(0)
 
 def main():
+    host = '0.0.0.0'
+    port = 12341
+    backlog = 5
 
     global server
-    server = MyServer('0.0.0.0', 12341, 5)
+    server = MyServer(host, port, backlog)
+
     signal.signal(signal.SIGINT, signal_handler)
     server.start()
 
