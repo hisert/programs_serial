@@ -75,7 +75,7 @@ def data_arrived(data):
 def stop_func():
     print("BY BY")
   
-server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived,, stop_function=stop_func)        
+server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived, stop_function=stop_func)        
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     server.start()
