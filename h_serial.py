@@ -11,6 +11,7 @@ class MyServer:
         self.port = port
         self.backlog = backlog
         self.server_socket = None
+        self.client_sockets = []  # Bağlı olan tüm clientlerin soketlerini saklamak için bir liste
         self.running = False
 
     def start(self):
@@ -23,16 +24,20 @@ class MyServer:
         self.server_thread.start()
 
     def stop(self):
+        self.close_all_clients()
         self.running = False
         if self.server_socket:
             self.server_socket.close()
         if self.server_thread:
             self.server_thread.join()
+        
 
     def server_loop(self):
         while self.running:
             try:
                 client_socket, client_address = self.server_socket.accept()
+                # Bağlı olan client soketini listeye ekle
+                self.client_sockets.append(client_socket)
                 client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                 client_thread.start()
             except KeyboardInterrupt:
@@ -49,6 +54,14 @@ class MyServer:
             received_message = received_message.replace(')', '>')
             print(received_message)
         client_socket.close()
+
+    def close_all_clients(self):
+        # Bağlı olan tüm clientlerle ilişkiyi kesmek için bir döngü oluştur
+        for client_socket in self.client_sockets:
+            try:
+                client_socket.close()
+            except:
+                pass  # Hata durumunda sessizce devam et
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # Ctrl+C sinyalini varsayılan işlemi gerçekleştirmesi için ayarla
