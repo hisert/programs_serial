@@ -6,13 +6,13 @@ import sys
 
 class MyServer:
   
-    def __init__(self, host, port, backlog, custom_function=None):  # Yeni parametre eklendi
+    def __init__(self, host, port, backlog, custom_function=None):
         self.host = host
         self.port = port
         self.backlog = backlog
         self.server_socket = None
         self.running = False
-        self.custom_function = custom_function  # Özel fonksiyonu sakla
+        self.custom_function = custom_function
 
     def start(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,20 +45,18 @@ class MyServer:
             data = client_socket.recv(1024)
             if not data:
                 break
-            if self.custom_function:  # Özel fonksiyon varsa çağır
+            if self.custom_function:
                 self.custom_function(data.decode())
 
         client_socket.close()
 
-      
 def my_custom_function(data):
-    received_message = received_message.replace('(', '<')
+    received_message = data.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
         
 def main():
-    signal.signal(signal.SIGINT, signal.SIG_DFL)  # Ctrl+C sinyalini varsayılan işlemi gerçekleştirmesi için ayarla
-  
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     server = MyServer('0.0.0.0', 12340, 5, custom_function=my_custom_function)
     server.start()
 
