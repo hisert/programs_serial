@@ -38,16 +38,6 @@ import socket
 import threading
 import signal
 
-def parse_data(data):
-    try:
-        data = data[data.index('(') + 1:data.index(')')]
-        data = data.replace('(', '<')
-        data = data.replace(')', '>')
-        return data
-    except Exception as e:
-        print("Veri ayrıştırma hatası:", e)
-        return None
-
 def signal_handler(sig, frame):
     global server_socket
     server_socket.close()
@@ -59,6 +49,8 @@ def handle_client(client_socket, client_address):
         if not data:
             break
         received_message = data.decode()
+        received_message = received_message.replace('(', '<')
+        received_message = received_message.replace(')', '>')
         serial_port.send_string(received_message) 
         print(received_message)
     client_socket.close()
