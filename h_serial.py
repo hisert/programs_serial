@@ -13,6 +13,7 @@ class MyServer:
         self.server_socket = None
         self.running = False
         self.custom_function = custom_function
+        self.client_sockets = []  # Bağlı olan tüm client soketlerini saklamak için liste
 
     def start(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,6 +35,7 @@ class MyServer:
         while self.running:
             try:
                 client_socket, client_address = self.server_socket.accept()
+                self.client_sockets.append(client_socket)  # Yeni client soketini listeye ekle
                 client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                 client_thread.start()
             except KeyboardInterrupt:
@@ -49,11 +51,21 @@ class MyServer:
                 self.custom_function(data.decode())
 
         client_socket.close()
+        self.client_sockets.remove(client_socket)  # Client soketini listeden kaldır
+
+    def send(self, message):
+        for client_socket in self.client_sockets:
+            try:
+                client_socket.sendall(message.encode())
+            except Exception as e:
+                print("Error sending message to client:", e)
 
 def my_custom_function(data):
     received_message = data.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
+    server.send(received_message)
+  
         
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
