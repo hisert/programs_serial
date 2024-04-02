@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd
+rm -r programs_serial
+pkill serial.py
+git clone https://github.com/hisert/programs_serial.git
+cd  programs_serial
+python3 serial.py
