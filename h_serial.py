@@ -37,6 +37,7 @@ class MySerialPort:
 import socket
 import threading
 import signal
+import time
 
 def signal_handler(sig, frame):
     global server_socket
