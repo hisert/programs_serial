@@ -61,8 +61,8 @@ def handle_client(client_socket, client_address):
         if not data:
             break
         received_message = data.decode()
-        serial_port.send_string(temp_a.decode()) 
-        print(temp_a)
+        serial_port.send_string(received_message.decode()) 
+        print(received_message)
     client_socket.close()
 
 def server_loop():
