@@ -72,8 +72,11 @@ def my_custom_function(data):
 server = MyServer('0.0.0.0', 12349, 5, custom_function=my_custom_function)        
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    
     server.start()
+    
+    while True:
+        print ("asker")
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
