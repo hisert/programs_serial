@@ -1,3 +1,4 @@
+import serial
 class MySerialPort:
     def __init__(self, port, baudrate, timeout):
         self.port = port
