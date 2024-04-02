@@ -41,8 +41,8 @@ import signal
 def parse_data(data):
     try:
         data = data[data.index('(') + 1:data.index(')')]
-        data = s.replace('(', '<')
-        data = s.replace(')', '>')
+        data = data.replace('(', '<')
+        data = data.replace(')', '>')
         return data
     except Exception as e:
         print("Veri ayrıştırma hatası:", e)
