@@ -22,8 +22,8 @@ class MySerialPort:
                     data = self.buffer.decode().strip()
                     self.gelen = data
                     self.buffer.clear() 
-                    return True
-            return False
+                    return self.gelen
+            return ""
             
     def send_string(self, data):
         if self.ser and self.ser.is_open:
@@ -63,7 +63,7 @@ def handle_client(client_socket, client_address):
         if not data:
             break
         received_message = data.decode()
-        temp_a = parse_data(received_message)
+        serial_port.send_string(temp_a.decode()) 
         print(temp_a)
     client_socket.close()
 
@@ -87,9 +87,8 @@ def main():
     server_thread.start()
 
     while True:
-        # Ana işlemlerinizi buraya yazabilirsiniz
-        print("Ana işlem devam ediyor...")
-        time.sleep(1)  # Örnek olarak 1 saniye uyutma işlemi
+        if read_data != "":
+            print("data arrived")
 
 if __name__ == "__main__":
     main()
