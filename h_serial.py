@@ -60,15 +60,16 @@ class MyServer:
             except Exception as e:
                 print("Error sending message to client:", e)
               
-server = MyServer('0.0.0.0', 12349, 5, custom_function=my_custom_function)
+
 
 def my_custom_function(data):
+    global server
     received_message = data.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
     server.send(received_message)
   
-        
+server = MyServer('0.0.0.0', 12349, 5, custom_function=my_custom_function)        
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     
