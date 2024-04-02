@@ -41,7 +41,7 @@ class MyServer:
                 client_thread.start()
             except KeyboardInterrupt:
                 if self.custom_function:
-                self.stop_function()
+                    self.stop_function()
                 self.stop()
                 break
 
