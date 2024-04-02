@@ -5,6 +5,7 @@ import time
 import sys
 
 class MyServer:
+  
     def __init__(self, host, port, backlog):
         self.host = host
         self.port = port
@@ -18,12 +19,15 @@ class MyServer:
         self.server_socket.listen(self.backlog)
 
         self.running = True
-        self.server_loop()
+        self.server_thread = threading.Thread(target=self.server_loop)
+        self.server_thread.start()
 
     def stop(self):
         if self.server_socket:
             self.server_socket.close()
             self.running = False
+            if self.server_thread:
+                self.server_thread.join()
 
     def server_loop(self):
         while self.running:
@@ -47,14 +51,8 @@ class MyServer:
         client_socket.close()
 
 def main():
-    host = '0.0.0.0'
-    port = 12341
-    backlog = 5
-
-    server = MyServer(host, port, backlog)
-
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # Ctrl+C sinyalini varsayılan işlemi gerçekleştirmesi için ayarla
-
+    server = MyServer('0.0.0.0', 12341, 5)
     server.start()
 
 if __name__ == "__main__":
