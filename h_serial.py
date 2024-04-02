@@ -76,6 +76,8 @@ def main():
 
     try:
         while True:
+            serial_port.send_string("<Q00000001:0000>") 
+            time.sleep(1)
             if serial_port.read_data() != "":
                 print("data arrived")
     except KeyboardInterrupt:
