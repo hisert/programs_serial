@@ -60,7 +60,7 @@ class MyServer:
             except Exception as e:
                 print("Error sending message to client:", e)
               
-server = MyServer('0.0.0.0', 12348, 5, custom_function=my_custom_function)
+server = MyServer('0.0.0.0', 12349, 5, custom_function=my_custom_function)
 
 def my_custom_function(data):
     received_message = data.replace('(', '<')
