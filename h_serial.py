@@ -1,4 +1,5 @@
 import serial
+import threading
 import time
 
 class MySerialPort:
@@ -26,9 +27,9 @@ class MySerialPort:
                         data = self.buffer.decode().strip()
                         self.gelen = data
                         self.buffer.clear()  # Bufferi temizle
-                        return gelen
+                        return self.gelen
                 else:
-                   return ""
+                    return ""
         else:
             return ""
             
@@ -40,16 +41,29 @@ class MySerialPort:
         if self.ser and self.ser.is_open:
             self.ser.close()
 
-# Seri port nesnesini oluştur
-serial_port = MySerialPort("COM1", 9600, 1)
+def send_data(serial_port):
+    while True:
+        serial_port.send_string("<Q00000001:0000>")
+        time.sleep(1)
 
-# Seri portu aç
-serial_port.open()
+def main():
+    port = "/dev/ttyS1"  # Seri port adı
+    baudrate = 9600  # Aktarılan bit hızı
+    timeout = 1  # Okuma zaman aşımı
 
-# Ana program döngüsü
-while True:
-    # Belirli bir veriyi seri porta gönder
-    serial_port.send_string("<Q00000001:0000>")
-    
-    # 1 saniye bekle
-    time.sleep(1)
+    serial_port = MySerialPort(port, baudrate, timeout)
+    serial_port.open()
+
+    send_thread = threading.Thread(target=send_data, args=(serial_port,))
+    send_thread.start()
+
+    try:
+        while True:
+            data = serial_port.read_data()
+            if data:
+                print("Received:", data)
+    except KeyboardInterrupt:
+        serial_port.close()
+
+if __name__ == "__main__":
+    main()
