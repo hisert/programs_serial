@@ -87,7 +87,7 @@ def main():
     server_thread.start()
 
     while True:
-        if read_data != "":
+        if serial_port.read_data() != "":
             print("data arrived")
 
 if __name__ == "__main__":
