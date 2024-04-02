@@ -6,7 +6,7 @@ import sys
 
 class MyServer:
   
-    def __init__(self, host, port, backlog, custom_function=None,, stop_function=None):
+    def __init__(self, host, port, backlog, custom_function=None, stop_function=None):
         self.host = host
         self.port = port
         self.backlog = backlog
