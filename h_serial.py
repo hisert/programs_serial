@@ -1,82 +1,55 @@
-import socket
-import threading
-import signal
+import serial
 import time
-import sys
 
-class MyServer:
-  
-    def __init__(self, host, port, backlog, custom_function=None):
-        self.host = host
-        self.port = port
-        self.backlog = backlog
-        self.server_socket = None
-        self.running = False
-        self.custom_function = custom_function
-        self.client_sockets = []  # Bağlı olan tüm client soketlerini saklamak için liste
-
-    def start(self):
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.host, self.port))
-        self.server_socket.listen(self.backlog)
-
-        self.running = True
-        self.server_thread = threading.Thread(target=self.server_loop)
-        self.server_thread.start()
-
-    def stop(self):
-        self.running = False
-        if self.server_socket:
-            self.server_socket.close()
-        if self.server_thread:
-            self.server_thread.join()
-
-    def server_loop(self):
-        while self.running:
-            try:
-                client_socket, client_address = self.server_socket.accept()
-                self.client_sockets.append(client_socket)  # Yeni client soketini listeye ekle
-                client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
-                client_thread.start()
-            except KeyboardInterrupt:
-                self.stop()
-                break
-
-    def handle_client(self, client_socket, client_address):
-        while True:
-            data = client_socket.recv(1024)
-            if not data:
-                break
-            if self.custom_function:
-                self.custom_function(data.decode())
-
-        client_socket.close()
-        self.client_sockets.remove(client_socket)  # Client soketini listeden kaldır
-
-    def send(self, message):
-        for client_socket in self.client_sockets:
-            try:
-                client_socket.sendall(message.encode())
-            except Exception as e:
-                print("Error sending message to client:", e)
-              
-
-
-def data_arrived(data):
-    global server
-    received_message = data.replace('(', '<')
-    received_message = received_message.replace(')', '>')
-    print(received_message)
-    server.send(received_message)
-  
-server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived)        
-def main():
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    server.start()
+class MySerialPort:
     
-    while True:
-        print ("asker")
-        time.sleep(1)
+    def __init__(self, port, baudrate, timeout):
+        self.port = port
+        self.baudrate = baudrate
+        self.timeout = timeout
+        self.ser = None
+        self.buffer = bytearray()  # Veriyi tutmak için bir buffer
+        self.gelen = "" # Veriyi tutmak için bir buffer
+    
+    def open(self):
+        self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
+    
+    def read_data(self):
+        if self.ser:
+            while True:
+                byte = self.ser.read(1)
+                if byte:
+                    if byte == b'<':
+                        self.buffer.clear()
+                    self.buffer.extend(byte)
+                    if byte == b'>':
+                        data = self.buffer.decode().strip()
+                        self.gelen = data
+                        self.buffer.clear()  # Bufferi temizle
+                        return gelen
+                else:
+                   return ""
+        else:
+            return ""
+            
+    def send_string(self, data):
+        if self.ser and self.ser.is_open:
+            self.ser.write(data.encode())
+            
+    def close(self):
+        if self.ser and self.ser.is_open:
+            self.ser.close()
 
-if __name__ == "__main__":
-    main()
+# Seri port nesnesini oluştur
+serial_port = MySerialPort("COM1", 9600, 1)
+
+# Seri portu aç
+serial_port.open()
+
+# Ana program döngüsü
+while True:
+    # Belirli bir veriyi seri porta gönder
+    serial_port.send_string("<Q00000001:0000>")
+    
+    # 1 saniye bekle
+    time.sleep(1)
