@@ -23,11 +23,11 @@ class MyServer:
         self.server_thread.start()
 
     def stop(self):
+        self.running = False
         if self.server_socket:
             self.server_socket.close()
-            self.running = False
-            if self.server_thread:
-                self.server_thread.join()
+        if self.server_thread:
+            self.server_thread.join()
 
     def server_loop(self):
         while self.running:
