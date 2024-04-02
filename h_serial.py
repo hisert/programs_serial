@@ -62,14 +62,14 @@ class MyServer:
               
 
 
-def my_custom_function(data):
+def data_arrived(data):
     global server
     received_message = data.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
     server.send(received_message)
   
-server = MyServer('0.0.0.0', 12349, 5, custom_function=my_custom_function)        
+server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived)        
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     server.start()
