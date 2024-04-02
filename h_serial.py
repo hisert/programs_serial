@@ -1,6 +1,7 @@
 import serial
 import threading
 import time
+
 class MySerialPort:
     def __init__(self, port, baudrate, timeout):
         self.port = port
@@ -12,8 +13,10 @@ class MySerialPort:
         self.thread = None
         self.running = False
         self.data_ready = False  # Veri hazır flag'i
+    
     def open(self):
         self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
+    
     def read_data(self):
         if self.ser:
             while True:
@@ -32,12 +35,15 @@ class MySerialPort:
                    return None
         else:
             return None
+            
     def send_string(self, data):
         if self.ser and self.ser.is_open:
-            self.ser.write(data.decode())
+            self.ser.write(data)
+    
     def close(self):
         if self.ser and self.ser.is_open:
             self.ser.close()
+    
     def start_serial_reading(self):
         if not self.running:
             self.thread = threading.Thread(target=self.serial_reader)
@@ -62,7 +68,7 @@ class MySerialPort:
             return self.gelen
         else:
             return None
-            
+
 serial_port = MySerialPort(port='/dev/ttyS1', baudrate=9600, timeout=1)
 serial_port.open()
 received_data = b"<Q00000001:0000>"
