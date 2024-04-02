@@ -50,10 +50,8 @@ class MyServer:
 
         client_socket.close()
 
-        
-
+      
 def my_custom_function(data):
-    received_message = data.encode()
     received_message = received_message.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
