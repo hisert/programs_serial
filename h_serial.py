@@ -57,7 +57,7 @@ def my_custom_function(data):
         
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    server = MyServer('0.0.0.0', 12340, 5, custom_function=my_custom_function)
+    server = MyServer('0.0.0.0', 12345, 5, custom_function=my_custom_function)
     server.start()
 
 if __name__ == "__main__":
