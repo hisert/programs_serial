@@ -2,7 +2,7 @@
 
 cd
 rm -r programs_serial
-pkill serial.py
+pkill h_serial.py
 git clone https://github.com/hisert/programs_serial.git
 cd  programs_serial
-python3 serial.py
+python3 h_serial.py
