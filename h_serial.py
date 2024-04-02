@@ -1,89 +1,66 @@
-import serial
 import socket
 import threading
 import signal
 import time
 import sys
 
-class MySerialPort:
-    def __init__(self, port, baudrate, timeout):
+class MyServer:
+    def __init__(self, host='0.0.0.0', port=12341, backlog=5):
+        self.host = host
         self.port = port
-        self.baudrate = baudrate
-        self.timeout = timeout
-        self.ser = None
+        self.backlog = backlog
+        self.server_socket = None
+        self.server_thread = None
+        self.running = False
 
-    def open(self):
-        if not self.ser or not self.ser.isOpen():
-            self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
-        else:
-            print("Port is already open.")
+    def start(self):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.host, self.port))
+        self.server_socket.listen(self.backlog)
 
-    def close(self):
-        if self.ser and self.ser.isOpen():
-            self.ser.close()
-        else:
-            print("Port is not open.")
+        self.running = True
+        self.server_thread = threading.Thread(target=self.server_loop)
+        self.server_thread.start()
 
-    def send_string(self, data):
-        if self.ser and self.ser.isOpen():
-            self.ser.write(data.encode())
-        else:
-            print("Port is not open.")
+    def stop(self):
+        if self.server_socket:
+            self.server_socket.close()
+            self.running = False
 
-    def read_data(self):
-        if self.ser and self.ser.isOpen():
-            return self.ser.readline().decode().strip()
-        else:
-            print("Port is not open.")
-            return ""
+    def server_loop(self):
+        while self.running:
+            client_socket, client_address = self.server_socket.accept()
+            client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
+            client_thread.start()
+
+    def handle_client(self, client_socket, client_address):
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            received_message = data.decode()
+            received_message = received_message.replace('(', '<')
+            received_message = received_message.replace(')', '>')
+            # Burada seriale gönderim işlemini ekleyebilirsiniz, ancak seri port nesnesine erişim sağlanmalı
+            # Bu örnekte seri port nesnesi kullanılmadığı için doğrudan print ediliyor.
+            print(received_message)
+        client_socket.close()
 
 def signal_handler(sig, frame):
-    global server_socket, serial_port
-    server_socket.close()
-    serial_port.close()
+    global server
+    server.stop()
     sys.exit(0)
 
-def handle_client(client_socket, client_address):
-    while True:
-        data = client_socket.recv(1024)
-        if not data:
-            break
-        received_message = data.decode()
-        received_message = received_message.replace('(', '<')
-        received_message = received_message.replace(')', '>')
-        serial_port.send_string(received_message)
-        print(received_message)
-    client_socket.close()
-
-def server_loop():
-    while True:
-        client_socket, client_address = server_socket.accept()
-        client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
-        client_thread.start()
-
-serial_port = MySerialPort(port='/dev/ttyS1', baudrate=9600, timeout=1)
-
 def main():
-    serial_port.open()
-    global server_socket
+    global server
+    server = MyServer()
+
     signal.signal(signal.SIGINT, signal_handler)
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('0.0.0.0', 12341))
-    server_socket.listen(5)
+    server.start()
 
-    server_thread = threading.Thread(target=server_loop)
-    server_thread.start()
-
-    try:
-        while True:
-            serial_port.send_string("<Q00000001:0000>")
-            time.sleep(1)
-            if serial_port.read_data() != "":
-                print("data arrived")
-    except KeyboardInterrupt:
-        pass
-    finally:
-        serial_port.close()
+    while True:
+        print("working")
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
