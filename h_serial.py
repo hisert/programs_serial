@@ -1,5 +1,6 @@
 import serial
 class MySerialPort:
+    
     def __init__(self, port, baudrate, timeout):
         self.port = port
         self.baudrate = baudrate
@@ -32,6 +33,7 @@ class MySerialPort:
     def close(self):
         if self.ser and self.ser.is_open:
             self.ser.close()
+            
 import socket
 import threading
 import signal
@@ -39,6 +41,8 @@ import signal
 def parse_data(data):
     try:
         data = data[data.index('(') + 1:data.index(')')]
+        data = s.replace('(', '<')
+        data = s.replace(')', '>')
         return data
     except Exception as e:
         print("Veri ayrıştırma hatası:", e)
