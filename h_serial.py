@@ -43,9 +43,7 @@ import time
 def parse_data(data):
     try:
         data = data[data.index('(') + 1:data.index(')')]
-        parts = data.split(',')
-        temp_a = parts[0]
-        return temp_a
+        return data
     except Exception as e:
         print("Veri ayrıştırma hatası:", e)
         return None
