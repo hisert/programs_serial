@@ -32,13 +32,9 @@ class MySerialPort:
     def close(self):
         if self.ser and self.ser.is_open:
             self.ser.close()
-
-
 import socket
 import threading
 import signal
-import sys
-import time
 
 def parse_data(data):
     try:
@@ -49,10 +45,8 @@ def parse_data(data):
         return None
 
 def signal_handler(sig, frame):
-    server_socket.close()  
-    for thread in threading.enumerate():
-        if thread != threading.main_thread():  # Ana threadi kapatma
-            thread.join()
+    global server_socket
+    server_socket.close()
     sys.exit(0)
 
 def handle_client(client_socket, client_address):
@@ -61,7 +55,7 @@ def handle_client(client_socket, client_address):
         if not data:
             break
         received_message = data.decode()
-        serial_port.send_string(received_message.decode()) 
+        serial_port.send_string(received_message) 
         print(received_message)
     client_socket.close()
 
@@ -70,7 +64,7 @@ def server_loop():
         client_socket, client_address = server_socket.accept()
         client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
         client_thread.start()
-        
+
 serial_port = MySerialPort(port='/dev/ttyS1', baudrate=9600, timeout=1)
 
 def main():
@@ -84,9 +78,14 @@ def main():
     server_thread = threading.Thread(target=server_loop)
     server_thread.start()
 
-    while True:
-        if serial_port.read_data() != "":
-            print("data arrived")
+    try:
+        while True:
+            if serial_port.read_data() != "":
+                print("data arrived")
+    except KeyboardInterrupt:
+        pass
+    finally:
+        serial_port.close()
 
 if __name__ == "__main__":
     main()
