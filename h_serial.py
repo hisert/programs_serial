@@ -53,7 +53,7 @@ class MyServer:
         
 
 def my_custom_function(data):
-    received_message = data.decode()
+    received_message = data.encode()
     received_message = received_message.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
