@@ -1,10 +1,12 @@
-import serial
-import threading
-import time
-
 class MySerialPort:
     def __init__(self, port, baudrate, timeout):
-      
+        self.port = port
+        self.baudrate = baudrate
+        self.timeout = timeout
+        self.ser = None
+        self.buffer = bytearray()
+        self.gelen = ""
+
     def open(self):
         self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
     
@@ -29,6 +31,7 @@ class MySerialPort:
     def close(self):
         if self.ser and self.ser.is_open:
             self.ser.close()
+
 
 import socket
 import threading
