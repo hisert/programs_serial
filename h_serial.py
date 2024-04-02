@@ -1,48 +1,33 @@
 import serial
-class MySerialPort:
-    
-    def __init__(self, port, baudrate, timeout):
-        self.port = port
-        self.baudrate = baudrate
-        self.timeout = timeout
-        self.ser = None
-        self.buffer = bytearray()
-        self.gelen = ""
-
-    def open(self):
-        self.ser = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-    
-    def read_data(self):
-        if self.ser:
-            byte = self.ser.read(1)
-            if byte:
-                if byte == b'<':
-                    self.buffer.clear()
-                self.buffer.extend(byte)
-                if byte == b'>':
-                    data = self.buffer.decode().strip()
-                    self.gelen = data
-                    self.buffer.clear() 
-                    return self.gelen
-            return ""
-            
-    def send_string(self, data):
-        if self.ser and self.ser.is_open:
-            self.ser.write(data.encode())
-            
-    def close(self):
-        if self.ser and self.ser.is_open:
-            self.ser.close()
-            
 import socket
 import threading
 import signal
 import time
-import sys 
+import sys
+
+class MySerialPort:
+    def __init__(self, port, baudrate, timeout):
+        self.port = port
+        self.baudrate = baudrate
+        self.timeout = timeout
+        self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+
+    def open(self):
+        self.ser.open()
+
+    def close(self):
+        self.ser.close()
+
+    def send_string(self, data):
+        self.ser.write(data.encode())
+
+    def read_data(self):
+        return self.ser.readline().decode().strip()
 
 def signal_handler(sig, frame):
-    global server_socket
+    global server_socket, serial_port
     server_socket.close()
+    serial_port.close()
     sys.exit(0)
 
 def handle_client(client_socket, client_address):
@@ -53,7 +38,7 @@ def handle_client(client_socket, client_address):
         received_message = data.decode()
         received_message = received_message.replace('(', '<')
         received_message = received_message.replace(')', '>')
-        serial_port.send_string(received_message) 
+        serial_port.send_string(received_message)
         print(received_message)
     client_socket.close()
 
@@ -78,7 +63,7 @@ def main():
 
     try:
         while True:
-            serial_port.send_string("<Q00000001:0000>") 
+            serial_port.send_string("<Q00000001:0000>")
             time.sleep(1)
             if serial_port.read_data() != "":
                 print("data arrived")
