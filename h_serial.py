@@ -31,7 +31,7 @@ class MySerialPort:
             
     def send_string(self, data):
         if self.ser and self.ser.is_open:
-            self.ser.write(data)
+            self.ser.write(data.decode())
             
     def close(self):
         if self.ser and self.ser.is_open:
