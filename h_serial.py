@@ -5,7 +5,7 @@ import time
 import sys
 
 class MyServer:
-    def __init__(self, host='0.0.0.0', port=12341, backlog=5):
+    def __init__(self, host, port, backlog):
         self.host = host
         self.port = port
         self.backlog = backlog
@@ -52,9 +52,9 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def main():
-    global server
-    server = MyServer()
 
+    global server
+    server = MyServer('0.0.0.0', 12341, 5)
     signal.signal(signal.SIGINT, signal_handler)
     server.start()
 
