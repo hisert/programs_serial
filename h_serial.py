@@ -10,7 +10,6 @@ class MyServer:
         self.port = port
         self.backlog = backlog
         self.server_socket = None
-        self.server_thread = None
         self.running = False
 
     def start(self):
@@ -19,8 +18,7 @@ class MyServer:
         self.server_socket.listen(self.backlog)
 
         self.running = True
-        self.server_thread = threading.Thread(target=self.server_loop)
-        self.server_thread.start()
+        self.server_loop()
 
     def stop(self):
         if self.server_socket:
@@ -29,9 +27,13 @@ class MyServer:
 
     def server_loop(self):
         while self.running:
-            client_socket, client_address = self.server_socket.accept()
-            client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
-            client_thread.start()
+            try:
+                client_socket, client_address = self.server_socket.accept()
+                client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
+                client_thread.start()
+            except KeyboardInterrupt:
+                self.stop()
+                break
 
     def handle_client(self, client_socket, client_address):
         while True:
@@ -41,31 +43,19 @@ class MyServer:
             received_message = data.decode()
             received_message = received_message.replace('(', '<')
             received_message = received_message.replace(')', '>')
-            # Burada seriale gönderim işlemini ekleyebilirsiniz, ancak seri port nesnesine erişim sağlanmalı
-            # Bu örnekte seri port nesnesi kullanılmadığı için doğrudan print ediliyor.
             print(received_message)
         client_socket.close()
-
-def signal_handler(sig, frame):
-    global server
-    server.stop()
-    server.server_thread.join()  # Sunucu threadinin tamamlanmasını bekler
-    sys.exit(0)
 
 def main():
     host = '0.0.0.0'
     port = 12341
     backlog = 5
 
-    global server
     server = MyServer(host, port, backlog)
 
-    signal.signal(signal.SIGINT, signal_handler)
-    server.start()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)  # Ctrl+C sinyalini varsayılan işlemi gerçekleştirmesi için ayarla
 
-    while True:
-        print("working")
-        time.sleep(1)
+    server.start()
 
 if __name__ == "__main__":
     main()
