@@ -40,8 +40,7 @@ class MyServer:
                 client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                 client_thread.start()
             except KeyboardInterrupt:
-                if self.custom_function:
-                    self.stop_function()
+                self.stop_function()
                 self.stop()
                 break
 
