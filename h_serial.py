@@ -6,13 +6,14 @@ import sys
 
 class MyServer:
   
-    def __init__(self, host, port, backlog, custom_function=None):
+    def __init__(self, host, port, backlog, custom_function=None,, stop_function=None):
         self.host = host
         self.port = port
         self.backlog = backlog
         self.server_socket = None
         self.running = False
         self.custom_function = custom_function
+        self.stop_function = stop_function
         self.client_sockets = []  # Bağlı olan tüm client soketlerini saklamak için liste
 
     def start(self):
@@ -39,6 +40,8 @@ class MyServer:
                 client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                 client_thread.start()
             except KeyboardInterrupt:
+                if self.custom_function:
+                self.stop_function()
                 self.stop()
                 break
 
@@ -68,8 +71,11 @@ def data_arrived(data):
     received_message = received_message.replace(')', '>')
     print(received_message)
     server.send(received_message)
+    
+def stop_func():
+    print("BY BY")
   
-server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived)        
+server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived,, stop_function=stop_func)        
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     server.start()
