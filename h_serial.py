@@ -70,7 +70,7 @@ def main():
     global server_socket
     signal.signal(signal.SIGINT, signal_handler)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('0.0.0.0', 12342))
+    server_socket.bind(('0.0.0.0', 12341))
     server_socket.listen(5)
 
     server_thread = threading.Thread(target=server_loop)
