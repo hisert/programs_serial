@@ -71,6 +71,6 @@ class MySerialPort:
 
 serial_port = MySerialPort(port='/dev/ttyS1', baudrate=9600, timeout=1)
 serial_port.open()
-received_data = b"<Q00000001:0000>"
+received_data = b"<Q00000010:0000>"
 serial_port.send_string(received_data)  
 serial_port.close()
