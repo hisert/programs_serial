@@ -31,6 +31,8 @@ class MyServer:
             self.server_socket.close()
         if self.server_thread:
             self.server_thread.join()
+        if self.stop_function:  # Stop fonksiyonu varsa çağır
+            self.stop_function()
 
     def server_loop(self):
         while self.running:
@@ -40,7 +42,6 @@ class MyServer:
                 client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
                 client_thread.start()
             except KeyboardInterrupt:
-                self.stop_function()
                 self.stop()
                 break
 
@@ -61,20 +62,17 @@ class MyServer:
                 client_socket.sendall(message.encode())
             except Exception as e:
                 print("Error sending message to client:", e)
-              
-
 
 def data_arrived(data):
-    global server
     received_message = data.replace('(', '<')
     received_message = received_message.replace(')', '>')
     print(received_message)
-    server.send(received_message)
-    
+
 def stop_func():
     print("BY BY")
-  
+
 server = MyServer('0.0.0.0', 12349, 5, custom_function=data_arrived, stop_function=stop_func)        
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     server.start()
