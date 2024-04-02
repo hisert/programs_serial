@@ -10,19 +10,32 @@ class MySerialPort:
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
-        self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+        self.ser = None
 
     def open(self):
-        self.ser.open()
+        if not self.ser or not self.ser.isOpen():
+            self.ser = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout)
+        else:
+            print("Port is already open.")
 
     def close(self):
-        self.ser.close()
+        if self.ser and self.ser.isOpen():
+            self.ser.close()
+        else:
+            print("Port is not open.")
 
     def send_string(self, data):
-        self.ser.write(data.encode())
+        if self.ser and self.ser.isOpen():
+            self.ser.write(data.encode())
+        else:
+            print("Port is not open.")
 
     def read_data(self):
-        return self.ser.readline().decode().strip()
+        if self.ser and self.ser.isOpen():
+            return self.ser.readline().decode().strip()
+        else:
+            print("Port is not open.")
+            return ""
 
 def signal_handler(sig, frame):
     global server_socket, serial_port
